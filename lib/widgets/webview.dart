@@ -1,11 +1,12 @@
-//todo 待学习
 import 'dart:async';
 
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 const CATCH_URLS = ['m.ctrip.com/', 'm.ctrip.com/html5/', 'm.ctrip.com/html5'];
 
+// ignore: must_be_immutable
 class WebView extends StatefulWidget {
   String url;
   final String statusBarColor;
@@ -39,16 +40,22 @@ class _WebViewState extends State<WebView> {
   @override
   void initState() {
     super.initState();
+    ///防止页面重复打开
     webviewReference.close();
+    ///网页url改变时执行的监听
     _onUrlChanged = webviewReference.onUrlChanged.listen((String url) {});
+    ///h5页面状态改变的时候监听
     _onStateChanged =
         webviewReference.onStateChanged.listen((WebViewStateChanged state) {
           switch (state.type) {
+            ///页面开始加载的时候
             case WebViewState.startLoad:
-              if (_isToMain(state.url) && !exiting) {
+              if (_isToMain(state.url) && !exiting) {//如果url地址在白名单里面，当前页面禁止返回则重新打开打开当前页面
                 if (widget.backForbid) {
+                  ///重新打开H5
                   webviewReference.launch(widget.url);
                 } else {
+                  ///返回Flutter页面
                   Navigator.pop(context);
                   exiting = true;
                 }
@@ -58,12 +65,16 @@ class _WebViewState extends State<WebView> {
               break;
           }
         });
+    ///Http错误监听
     _onHttpError =
         webviewReference.onHttpError.listen((WebViewHttpError error) {
+          LogUtil.init(isDebug: true);
+          LogUtil.v(error,tag: 'webview:onHttpError');
           print(error);
         });
   }
 
+  ///判断H5跳转URL是否在白名单里面
   _isToMain(String url) {
     bool contain = false;
     for (final value in CATCH_URLS) {
@@ -77,6 +88,7 @@ class _WebViewState extends State<WebView> {
 
   @override
   void dispose() {
+    ///取消监听，释放资源
     _onStateChanged.cancel();
     _onUrlChanged.cancel();
     _onHttpError.cancel();
@@ -97,14 +109,17 @@ class _WebViewState extends State<WebView> {
       body: Column(
         children: <Widget>[
           _appBar(
-              Color(int.parse('0xff' + statusBarColorStr)), backButtonColor),
+              Color(int.parse('0xff' + statusBarColorStr)), backButtonColor),//字符串转十六进制颜色代码，不够六位不两位。前面两位是alpha后面为rgb
           Expanded(
               child: WebviewScaffold(
                 userAgent: 'null',//防止携程H5页面重定向到打开携程APP ctrip://wireless/xxx的网址
                 url: widget.url,
+                ///开启缩放
                 withZoom: true,
+                ///H5本地存储
                 withLocalStorage: true,
                 hidden: true,
+                ///加载时显示内容
                 initialChild: Container(
                   color: Colors.white,
                   child: Center(
@@ -127,7 +142,7 @@ class _WebViewState extends State<WebView> {
     return Container(
       color: backgroundColor,
       padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
-      child: FractionallySizedBox(
+      child: FractionallySizedBox(//宽度撑满整个屏幕
         widthFactor: 1,
         child: Stack(
           children: <Widget>[

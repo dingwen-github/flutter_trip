@@ -3,9 +3,11 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_trip/dao/home_dao.dart';
 import 'package:flutter_trip/model/common_model.dart';
 import 'package:flutter_trip/model/config_model.dart';
+import 'package:flutter_trip/model/grid_nav_model.dart';
 import 'package:flutter_trip/model/home_model.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter_trip/utils/navigator_util.dart';
+import 'package:flutter_trip/widgets/grid_nav.dart';
 import 'package:flutter_trip/widgets/loading_container.dart';
 import 'package:flutter_trip/widgets/local_nav.dart';
 import 'package:flutter_trip/widgets/webview.dart';
@@ -24,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   double _appBarAlpha = 0;
   List<CommonModel> localNavList = [];
   List<CommonModel> bannerList = [];
+  GridNavModel gridNavModel;
   bool _isLoading = true;
 
   @override
@@ -101,6 +104,7 @@ class _HomePageState extends State<HomePage> {
         HomePage.configModel = homeModel.config;
         localNavList = homeModel.localNavList;
         bannerList = homeModel.bannerList;
+        gridNavModel = homeModel.gridNav;
         _isLoading = false;
       });
       LogUtil.v(homeModel.toJson(), tag: 'home_page.json');
@@ -140,6 +144,10 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
             child: LocalNav(localNavList: localNavList,),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: GridNav(gridNavModel: gridNavModel,),
           ),
           Container(
             height: 800.0,
