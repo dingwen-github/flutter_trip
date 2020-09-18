@@ -131,7 +131,7 @@ class GridNav extends StatelessWidget {
     );
   }
 
-  ///右边两个子项的上线两个子项
+  ///右边两个子项的上下两个子项
   _itemChildDoubleItem(
       {BuildContext context, CommonModel commonModel, bool isFirst}) {
     BorderSide borderSide = BorderSide(width: 0.8, color: Colors.white);
