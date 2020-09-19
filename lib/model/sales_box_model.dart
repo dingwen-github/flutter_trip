@@ -28,6 +28,10 @@ class SalesBoxModel {
       moreUrl: json['moreUrl'],
       bigCard1: CommonModel.fromJson(json['bigCard1']),
       bigCard2: CommonModel.fromJson(json['bigCard2']),
+      smallCard1: CommonModel.fromJson(json['smallCard1']),
+      smallCard2: CommonModel.fromJson(json['smallCard2']),
+      smallCard3: CommonModel.fromJson(json['smallCard3']),
+      smallCard4: CommonModel.fromJson(json['smallCard4']),
     );
   }
 

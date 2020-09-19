@@ -6,14 +6,20 @@ import 'package:flutter_trip/model/config_model.dart';
 import 'package:flutter_trip/model/grid_nav_model.dart';
 import 'package:flutter_trip/model/home_model.dart';
 import 'package:flustars/flustars.dart';
+import 'package:flutter_trip/model/sales_box_model.dart';
+import 'package:flutter_trip/pages/search_page.dart';
 import 'package:flutter_trip/utils/navigator_util.dart';
 import 'package:flutter_trip/widgets/grid_nav.dart';
 import 'package:flutter_trip/widgets/loading_container.dart';
 import 'package:flutter_trip/widgets/local_nav.dart';
+import 'package:flutter_trip/widgets/sales_box.dart';
+import 'package:flutter_trip/widgets/search_bar.dart';
+import 'package:flutter_trip/widgets/sub_nav.dart';
 import 'package:flutter_trip/widgets/webview.dart';
 
 ///滚动的最大距离
 const APPBAR_SCROLL_OFFSET = 100;
+const SEARCH_BAR_DEFAULT_TEXT = '网红打卡地 景点 酒店 美食';
 
 class HomePage extends StatefulWidget {
   static ConfigModel configModel;
@@ -28,6 +34,8 @@ class _HomePageState extends State<HomePage> {
   List<CommonModel> bannerList = [];
   GridNavModel gridNavModel;
   bool _isLoading = true;
+  List<CommonModel> subNavList = [];
+  SalesBoxModel salesBoxModel;
 
   @override
   void initState() {
@@ -105,6 +113,8 @@ class _HomePageState extends State<HomePage> {
         localNavList = homeModel.localNavList;
         bannerList = homeModel.bannerList;
         gridNavModel = homeModel.gridNav;
+        subNavList = homeModel.subNavList;
+        salesBoxModel = homeModel.salesBox;
         _isLoading = false;
       });
       LogUtil.v(homeModel.toJson(), tag: 'home_page.json');
@@ -117,23 +127,42 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///自定义AppBar,计算属性方式
-  //todo 组件未完成开发
   Widget get _appBar {
-    return
-
-        ///改变透明度
-        Opacity(
-      opacity: _appBarAlpha,
-      child: Container(
-        height: 80.0,
-        decoration: BoxDecoration(color: Colors.white),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: Text('首页'),
+    return Column(
+      children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              ///AppBar渐变遮罩背景
+              colors: [Color(0x66000000), Colors.transparent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Container(
+            padding: EdgeInsets.only(top: 40),
+            height: 80.0,
+            decoration: BoxDecoration(
+                color: Color.fromARGB(
+                    (_appBarAlpha * 255).toInt(), 255, 255, 255)),
+            child: SearchBar(
+              searchBarType: _appBarAlpha > 0.2
+                  ? SearchBarType.homeLight
+                  : SearchBarType.home,
+              inputBoxClick: _jumpToSearch,
+              speakButtonClick: _jumpToSpeak,
+              defaultText: SEARCH_BAR_DEFAULT_TEXT,
+              leftButtonClick: () {},
+            ),
           ),
         ),
-      ),
+        Container(
+          height: _appBarAlpha > 0.2 ? 0.5 : 0,
+          decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.black12,blurRadius: 0.5)],
+          ),
+        ),
+      ],
     );
   }
 
@@ -143,14 +172,27 @@ class _HomePageState extends State<HomePage> {
           _banner,
           Padding(
             padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
-            child: LocalNav(localNavList: localNavList,),
+            child: LocalNav(
+              localNavList: localNavList,
+            ),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-            child: GridNav(gridNavModel: gridNavModel,),
+            child: GridNav(
+              gridNavModel: gridNavModel,
+            ),
           ),
-          Container(
-            height: 800.0,
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: SubNav(
+              subNavList: subNavList,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+            child: SalesBox(
+              salesBoxModel: salesBoxModel,
+            ),
           ),
         ],
       );
@@ -184,4 +226,17 @@ class _HomePageState extends State<HomePage> {
           pagination: SwiperPagination(),
         ),
       );
+
+  void _jumpToSearch() {
+    NavigatorUtil.push(
+        context,
+        SearchPage(
+          hint: SEARCH_BAR_DEFAULT_TEXT,
+          hideLeft: false,
+        ));
+  }
+
+  //todo 待开发
+  void _jumpToSpeak() {
+  }
 }
